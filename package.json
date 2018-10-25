@@ -14,6 +14,7 @@
     "blessed-contrib": "^4.8.7",
     "npm": "^6.4.1",
     "pty.js": "^0.3.1",
+    "speedtest-net": "^1.4.3",
     "term.js": "0.0.7"
   }
 }

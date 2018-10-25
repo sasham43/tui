@@ -1,6 +1,17 @@
 const blessed = require('blessed')
 const contrib = require('blessed-contrib')
 
+var speed = require('./speed');
+// console.log('speed', speed);
+speed.speedEmitter.on('speed', function(data){
+    // console.log('evt', data);
+    box.setContent(`
+        Upload: ${data.upload}
+        Download: ${data.download}
+        `)
+    screen.render();
+})
+
 // Create a screen object.
 var screen = blessed.screen({
   smartCSR: true
