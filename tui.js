@@ -2,6 +2,7 @@ const blessed = require('blessed')
 const contrib = require('blessed-contrib')
 
 var speed = require('./speed');
+var count = 0;
 // console.log('speed', speed);
 speed.speedEmitter.on('speed', function(data){
     // console.log('evt', data);
@@ -9,6 +10,16 @@ speed.speedEmitter.on('speed', function(data){
         Upload: ${data.upload}
         Download: ${data.download}
         `)
+
+    count++
+    upload.x.push(`u${count}`)
+    download.x.push(`d${count}`)
+    upload.x.push(data.upload)
+    download.y.push(data.download)
+    screen.append(line) //must append before setting data
+    line.setData([download, upload])
+
+
     screen.render();
 })
 
@@ -22,7 +33,7 @@ var box = blessed.box({
   top: 0,
   left: 0,
   width: '50%',
-  height: '50%',
+  height: '10%',
   content: 'Hello {bold}world{/bold}!',
   tags: true,
   border: {
@@ -62,8 +73,56 @@ var terminal = blessed.terminal({
   }
 });
 
+var line = contrib.line(
+         { style:
+           { line: "yellow"
+           , text: "green"
+           , baseline: "black"}
+         , xLabelPadding: 3
+         , xPadding: 5
+         , showLegend: true
+         , wholeNumbersOnly: false //true=do not show fraction in y axis
+         , label: 'Speeds',
+         top: '10%',
+         left: 0,
+         width: '50%',
+         height: '40%',
+         border: {
+           type: 'line'
+         },
+         style: {
+           fg: 'white',
+           bg: 'black',
+           border: {
+             fg: '#f0f0f0'
+           },
+           hover: {
+             bg: 'green'
+           }
+         }
+     })
+   var upload = {
+         title: 'upload',
+         x: ['u0'],
+         y: [1],
+         style: {
+             line: 'red'
+         }
+      }
+   var download = {
+         title: 'download',
+         x: ['d0'],
+         y: [1],
+         style: {
+             line: 'yellow'
+         }
+      }
+
 // Append our box to the screen.
 screen.append(box);
+
+screen.append(line) //must append before setting data
+line.setData([download, upload])
 
 // Quit on Escape, q, or Control-C.
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {

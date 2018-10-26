@@ -12,9 +12,12 @@
   "dependencies": {
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.7",
+    "dotenv": "^6.1.0",
+    "image-downloader": "^3.4.1",
     "npm": "^6.4.1",
     "pty.js": "^0.3.1",
     "speedtest-net": "^1.4.3",
+    "spotify-web-api-node": "^4.0.0",
     "term.js": "0.0.7"
   }
 }
