@@ -24,9 +24,9 @@ var code = 'AQCJfzNPZrmAZcarvZKsTotUSAgpwni_gWsVRS0xuvLFKskgFRuni4Y7PfAlw5MkmZNK
 // Retrieve an access token.
 spotifyApi.clientCredentialsGrant(code).then(
   function(data) {
-    console.log('The token expires in ' + data.body['expires_in']);
-    console.log('The access token is ' + data.body['access_token']);
-    console.log('The refresh token is ' + data.body['refresh_token']);
+    // console.log('The token expires in ' + data.body['expires_in']);
+    // console.log('The access token is ' + data.body['access_token']);
+    // console.log('The refresh token is ' + data.body['refresh_token']);
 
     // Set the access token on the API object to use it in later calls
     // spotifyApi.setAccessToken(data.body['access_token']);
@@ -36,46 +36,12 @@ spotifyApi.clientCredentialsGrant(code).then(
 
     spotifyApi.refreshAccessToken().then(
       function(data) {
-        console.log('The access token has been refreshed!');
+        // console.log('The access token has been refreshed!');
 
         // Save the access token so that it's used in future calls
         spotifyApi.setAccessToken(data.body['access_token']);
         // do things
-        spotifyApi.getMyCurrentPlayingTrack()
-        .then(function(data) {
-          // Output items
-          // console.log("Now Playing: ",data.body);
-          var image = data.body.item.album.images[2].url;
-          // const options = {
-          //     url: image,
-          //     dest: 'images/cover.png'                  // Save to /path/to/dest/image.jpg
-          //   }
-            // The path can be either a local path or an url
-            imageToAscii(image, {
-                size: {
-                    height: 24
-                }
-            }, (err, converted) => {
-                // console.log(err || converted);
-
-                  // console.log(converted)
-                  spotifyEmitter.emit('now-playing', {
-                      track: data.body.item.name,
-                      artist: data.body.item.artists[0].name,
-                      image: converted
-                  })
-            });
-
-
-            // download.image(options)
-            //   .then(({ filename, image }) => {
-            //   })
-            //   .catch((err) => {
-            //     console.error(err)
-            //   })
-        }, function(err) {
-          console.log('Something went wrong!', err);
-        });
+        getTrack();
       },
       function(err) {
         console.log('Could not refresh access token', err);
@@ -88,7 +54,29 @@ spotifyApi.clientCredentialsGrant(code).then(
 
 );
 
+function getTrack(){
+    spotifyApi.getMyCurrentPlayingTrack()
+    .then(function(data) {
+        // console.log('got track');
+      var image = data.body.item.album.images[2].url;
+        // The path can be either a local path or an url
+        imageToAscii(image, {
+            size: {
+                height: 24
+            }
+        }, (err, converted) => {
+              spotifyEmitter.emit('now-playing', {
+                  track: data.body.item.name,
+                  artist: data.body.item.artists[0].name,
+                  image: converted
+              })
+        });
+    }, function(err) {
+      console.log('Something went wrong!', err);
+    });
+}
 
 module.exports = {
-    spotifyEmitter
+    spotifyEmitter,
+    getTrack
 }

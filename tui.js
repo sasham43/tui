@@ -30,6 +30,8 @@ spotify.spotifyEmitter.on('now-playing', function(data){
 Now playing: ${data.track} - ${data.artist}
 ${data.image}
         `)
+
+    screen.render();
 })
 
 // Create a screen object.
@@ -75,6 +77,9 @@ var album = blessed.box({
         bg: 'black',
         border: {
             fg: 'chartreuse'
+        },
+        hover: {
+            bg: 'red'
         }
     }
 })
@@ -153,13 +158,26 @@ screen.append(album);
 screen.append(line) //must append before setting data
 line.setData([download, upload])
 
+// album.on('click', function(data) {
+//   // box.setContent('{center}Some different {red-fg}content{/red-fg}.{/center}');
+//   // console.log('got clicked');
+//   spotify.getTrack();
+// });
+
 // Quit on Escape, q, or Control-C.
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
   return process.exit(0);
 });
+screen.key(['s'], function(ch, key) {
+  // return process.exit(0);
+  album.setContent( `getting track...\n` + album.content);
+  spotify.getTrack();
+});
+
+album.focus();
 
 // Focus our element.
-terminal.focus();
+// terminal.focus();
 
 // Render the screen.
 screen.render();
