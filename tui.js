@@ -2,6 +2,8 @@ const blessed = require('blessed')
 const contrib = require('blessed-contrib')
 
 var speed = require('./speed');
+var spotify = require('./spotify');
+
 var count = 0;
 // console.log('speed', speed);
 speed.speedEmitter.on('speed', function(data){
@@ -21,6 +23,13 @@ speed.speedEmitter.on('speed', function(data){
 
 
     screen.render();
+})
+
+spotify.spotifyEmitter.on('now-playing', function(data){
+    album.setContent(`
+Now playing: ${data.track} - ${data.artist}
+${data.image}
+        `)
 })
 
 // Create a screen object.
@@ -50,6 +59,25 @@ var box = blessed.box({
     }
   }
 });
+
+var album = blessed.box({
+    top: '50%',
+    left: 0,
+    width: '50%',
+    height: '50%',
+    content: ``,
+    tags: true,
+    border: {
+        type: 'line'
+    },
+    style: {
+        fg: 'white',
+        bg: 'black',
+        border: {
+            fg: 'chartreuse'
+        }
+    }
+})
 
 var terminal = blessed.terminal({
   parent: screen,
@@ -120,6 +148,7 @@ var line = contrib.line(
 
 // Append our box to the screen.
 screen.append(box);
+screen.append(album);
 
 screen.append(line) //must append before setting data
 line.setData([download, upload])

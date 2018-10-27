@@ -3,7 +3,8 @@ const SpotifyWebApi = require('spotify-web-api-node')
 var eventEmitter = require('events');
 var spotifyEmitter = new eventEmitter();
 
-const download = require('image-downloader')
+// const download = require('image-downloader')
+const imageToAscii = require("image-to-ascii");
 
 var clientId = process.env.SPOTIFY_ID,
   clientSecret = process.env.SPOTIFY_SECRET;
@@ -30,37 +31,64 @@ spotifyApi.clientCredentialsGrant(code).then(
     // Set the access token on the API object to use it in later calls
     // spotifyApi.setAccessToken(data.body['access_token']);
     // spotifyApi.setRefreshToken(data.body['refresh_token']);
-    spotifyApi.setAccessToken('BQDpLyZ2lV4jI6U8zFCl5Wg3adOZL49a45HcWsmZi0LjDwI3Kv4GYQEzu6PYmRu-OdKIMJW-tw_-dp7b8W5IchYK5X0-hjPx_W85e5QIlQ9HABK6Ecy-6yhusY7_-UovXTCLEyxJ5-AMcWdPNENq-e7GOwyaq5-HKYi-9U52cFMnpvgqrPrwqPcS');
-    spotifyApi.setRefreshToken('AQDKR0tMnjc5NNtwR51KCd2iWzvpA8mviXdxwMdQ0JehdlLZUdwTPp2vAfig12zm7lGczZSVdr8-tcSd2kUo7qO68Z8iDAqqpTfwsduQH4HH7Xf8-4xts_i5tnBc1z9bNsqgiw');
+    spotifyApi.setAccessToken('BQDW0npMFgQDqJPHxR5jSn7LV4TjhFKMkplv_PUAvCk6HXPgh9SxFwUzcq9P7LbbScMPQH7PnHlyGM3s55ZkMpSyLEZ0M24CAfx7eSh85SeHaJxb3VK_PY0pJG9AOwGvPujebcgkQIjy_enf_6IGs6QNq3uKWwrvz8Pg6u2mgmgB8P-R-APbuSGI');
+    spotifyApi.setRefreshToken('AQCN7kSO5JvxQL0Z_saGYluzlTPFQyWjDgc1_daEPIsUXxznFIqACBwVh6H5uFWYZl25n_5y1oJW0dZMgBhQn62NjVsbIt0fZVgcfUDmfqBxhMCN71O5YyR1U-_qLve76lcn3w');
 
-    // do things
-    spotifyApi.getMyCurrentPlayingTrack()
-    .then(function(data) {
-      // Output items
-      console.log("Now Playing: ",data.body);
-      var image = data.body.item.album.images[2].url;
-      const options = {
-          url: image,
-          dest: 'images/cover.png'                  // Save to /path/to/dest/image.jpg
-        }
+    spotifyApi.refreshAccessToken().then(
+      function(data) {
+        console.log('The access token has been refreshed!');
 
-        download.image(options)
-          .then(({ filename, image }) => {
-            console.log('File saved to', filename)
-            spotifyEmitter.emit('now-playing', {
-                track: data.body.item.name,
-                artist: data.body.item.artists[0].name
-            })
-          })
-          .catch((err) => {
-            console.error(err)
-          })
-    }, function(err) {
-      console.log('Something went wrong!', err);
-    });
+        // Save the access token so that it's used in future calls
+        spotifyApi.setAccessToken(data.body['access_token']);
+        // do things
+        spotifyApi.getMyCurrentPlayingTrack()
+        .then(function(data) {
+          // Output items
+          // console.log("Now Playing: ",data.body);
+          var image = data.body.item.album.images[2].url;
+          // const options = {
+          //     url: image,
+          //     dest: 'images/cover.png'                  // Save to /path/to/dest/image.jpg
+          //   }
+            // The path can be either a local path or an url
+            imageToAscii(image, {
+                size: {
+                    height: 24
+                }
+            }, (err, converted) => {
+                // console.log(err || converted);
+
+                  // console.log(converted)
+                  spotifyEmitter.emit('now-playing', {
+                      track: data.body.item.name,
+                      artist: data.body.item.artists[0].name,
+                      image: converted
+                  })
+            });
+
+
+            // download.image(options)
+            //   .then(({ filename, image }) => {
+            //   })
+            //   .catch((err) => {
+            //     console.error(err)
+            //   })
+        }, function(err) {
+          console.log('Something went wrong!', err);
+        });
+      },
+      function(err) {
+        console.log('Could not refresh access token', err);
+      }
+    );
   },
   function(err) {
     console.log('Something went wrong when retrieving an access token', err);
   }
 
 );
+
+
+module.exports = {
+    spotifyEmitter
+}
